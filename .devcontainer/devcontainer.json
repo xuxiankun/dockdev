@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.191.0/containers/dotnetcore
 {
-	"name": "C# Sample",
+	"name": "eCommerceProduct microservice",
 	"build": {
 		"dockerfile": "Dockerfile",
 		"args": { 
@@ -62,7 +62,7 @@
 	//      "mounts": [ "source=${env:HOME}${env:USERPROFILE}/.aspnet/https,target=/home/vscode/.aspnet/https,type=bind" ],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": ["dotnet restore", "dotnet dev-certs https --trust"],
+	"postCreateCommand": "dotnet restore && dotnet dev-certs https --trust",
 
 	// Comment this out to connect as a root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "vscode"
