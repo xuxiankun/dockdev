@@ -32,7 +32,7 @@ namespace eCommerceApiProducts
             services.AddDbContextPool<ProductsDbContext>(optionsBuilder =>
             {
 
-                optionsBuilder.UseMySQL("server=localhost;database=mydb;user=jimmy;password=!Aa800723");
+                optionsBuilder.UseMySQL("server=localhost;database=mydb;user=jimmy;password=12345678");
 
             });
             services.AddSwaggerGen(c =>
