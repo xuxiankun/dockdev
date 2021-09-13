@@ -13,6 +13,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using eCommerceApiProducts.Models;
+using AspNetCoreRateLimit;
+
 namespace eCommerceApiProducts
 {
     public class Startup
@@ -28,22 +30,35 @@ namespace eCommerceApiProducts
         public void ConfigureServices(IServiceCollection services)
         {
 
+            // needed to load configuration from appsettings.json
+	        services.AddOptions();
+            services.AddMemoryCache();
+            services.AddScoped<SomeRepository>();
+            services.Configure<IpRateLimitOptions>(Configuration.GetSection("IpRateLimiting"));
+            services.Configure<IpRateLimitOptions>(Configuration.GetSection("IpRateLimitPolices"));
             services.AddControllers();
+           
+	        services.AddInMemoryRateLimiting();
+
             services.AddDbContextPool<ProductsDbContext>(optionsBuilder =>
             {
 
-                optionsBuilder.UseMySQL("server=localhost;database=mydb;user=jimmy;password=12345678");
+                optionsBuilder.UseMySQL(Configuration.GetConnectionString("DBContext"));
 
             });
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "eCommerceApiProducts", Version = "v1" });
             });
+            services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseIpRateLimiting();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

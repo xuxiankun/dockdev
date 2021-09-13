@@ -13,6 +13,9 @@ namespace eCommerceApiProducts
     {
         public static void Main(string[] args)
         {
+            string abc ="xxx";
+            var wholeStr = $"{abc} in cup";
+            Console.WriteLine(wholeStr);
             CreateHostBuilder(args).Build().Run();
         }
 

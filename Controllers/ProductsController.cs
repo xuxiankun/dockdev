@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using eCommerceApiProducts.Models;
+using System.Net;
+using System.Threading;
 
 namespace eCommerceApiProducts.Controllers
 {
@@ -15,9 +17,12 @@ namespace eCommerceApiProducts.Controllers
     {
         private readonly ProductsDbContext _context;
 
-        public ProductsController(ProductsDbContext context)
+        private readonly SomeRepository _repository;
+
+        public ProductsController(ProductsDbContext context, SomeRepository repository)
         {
             _context = context;
+            _repository = repository;
         }
 
         // GET: api/Products
@@ -25,6 +30,14 @@ namespace eCommerceApiProducts.Controllers
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
             return await _context.Products.ToListAsync();
+        }
+
+        private async Task SomeBackgroundThingAsync(CancellationToken token)
+        {
+            var result = await _repository.GetValueAsync(2);
+            await Task.Delay(10000, token);
+            //throw new InvalidOperationException();
+            Console.WriteLine($"The number is {result}");
         }
 
         // GET: api/Products/5
@@ -40,6 +53,15 @@ namespace eCommerceApiProducts.Controllers
 
             return product;
         }
+
+        [HttpGet("hostname")]
+        public async Task<string> GetHostname(CancellationToken token)
+        {
+            string hostName = Dns.GetHostName();
+            await SomeBackgroundThingAsync( token);
+            return hostName;
+        }
+
 
         // PUT: api/Products/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

@@ -10,9 +10,9 @@ RUN dotnet restore
 #COPY ../engine/examples ./
 COPY * ./
 RUN dotnet publish -c Release -o /app --no-restore
-
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:5.0
 WORKDIR /app
+EXPOSE 80/tcp
 COPY --from=build-env /app .
 ENTRYPOINT ["dotnet", "eCommerceApiProducts.dll"]
