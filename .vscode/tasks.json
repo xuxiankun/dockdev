@@ -5,11 +5,27 @@
             "label": "build",
             "command": "dotnet",
             "type": "process",
+            "isBuildCommand": true,
             "args": [
                 "build",
                 "${workspaceFolder}/eCommerceApiProducts.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build release",
+            "command": "dotnet",
+            "type": "process",
+            "isBuildCommand": true,
+            "args": [
+                "build",
+                "${workspaceFolder}/eCommerceApiProducts.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary",
+                "-c",
+                "release"
             ],
             "problemMatcher": "$msCompile"
         },

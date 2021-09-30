@@ -14,6 +14,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using eCommerceApiProducts.Models;
 using AspNetCoreRateLimit;
+using MediatR;
+using Microsoft.AspNetCore.Mvc.Versioning;
 
 namespace eCommerceApiProducts
 {
@@ -33,12 +35,22 @@ namespace eCommerceApiProducts
             // needed to load configuration from appsettings.json
 	        services.AddOptions();
             services.AddMemoryCache();
+            
+           
             services.AddScoped<SomeRepository>();
             services.Configure<IpRateLimitOptions>(Configuration.GetSection("IpRateLimiting"));
             services.Configure<IpRateLimitOptions>(Configuration.GetSection("IpRateLimitPolices"));
             services.AddControllers();
-           
+             services.AddApiVersioning(config=>{
+                config.DefaultApiVersion = new ApiVersion(1,0);
+                config.AssumeDefaultVersionWhenUnspecified = true;
+                config.ReportApiVersions = true;
+                //config.ApiVersionReader = new HeaderApiVersionReader("api-version");
+            });
 	        services.AddInMemoryRateLimiting();
+            services.AddMediatR(typeof(Startup));
+
+            //services.AddMediatR(Assembly.GetExecutingAsse());
 
             services.AddDbContextPool<ProductsDbContext>(optionsBuilder =>
             {
@@ -48,7 +60,7 @@ namespace eCommerceApiProducts
             });
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "eCommerceApiProducts", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "eCommerceApiProducts", Version = "v1.0" });
             });
             services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 
@@ -63,7 +75,11 @@ namespace eCommerceApiProducts
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "eCommerceApiProducts v1"));
+                SwaggerOptions swaggerOptions = new SwaggerOptions();
+                Configuration.GetSection("Swagger").Bind(swaggerOptions);
+                //app.UseSwaggerUI(c => c.SwaggerEndpoint(swaggerOptions.UiEndpoint, "eCommerceApiProducts v1"));
+                                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "eCommerceApiProducts v1"));
+
             }
 
             app.UseHttpsRedirection();

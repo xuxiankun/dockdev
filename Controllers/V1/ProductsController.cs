@@ -8,28 +8,36 @@ using Microsoft.EntityFrameworkCore;
 using eCommerceApiProducts.Models;
 using System.Net;
 using System.Threading;
+using MediatR;
 
-namespace eCommerceApiProducts.Controllers
+namespace eCommerceApiProducts.Controllers.V1
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/v{version:apiVersion}/[controller]" )]
+    [ApiVersion("1.0")]
+  
     public class ProductsController : ControllerBase
     {
         private readonly ProductsDbContext _context;
 
+        private readonly IMediator _mediator;
+
         private readonly SomeRepository _repository;
 
-        public ProductsController(ProductsDbContext context, SomeRepository repository)
+        public ProductsController(ProductsDbContext context, SomeRepository repository, IMediator mediator)
         {
             _context = context;
             _repository = repository;
+            _mediator = mediator;
         }
 
         // GET: api/Products
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
-            return await _context.Products.ToListAsync();
+            var query = new GetAllProductsQuery();
+            var result = await _mediator.Send(query);
+            return Ok(result);
         }
 
         private async Task SomeBackgroundThingAsync(CancellationToken token)
@@ -44,14 +52,11 @@ namespace eCommerceApiProducts.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
-            var product = await _context.Products.FindAsync(id);
-
-            if (product == null)
-            {
-                return NotFound();
-            }
-
-            return product;
+            var query = new GetProductByIdQuery(id);
+            var result = await _mediator.Send(query);
+            //var product = await _context.Products.FindAsync(id);
+            return result != null ? Ok(result) : NotFound();
+             
         }
 
         [HttpGet("hostname")]
